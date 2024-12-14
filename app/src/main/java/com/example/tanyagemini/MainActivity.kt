@@ -126,9 +126,16 @@ fun ModernChatScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Modern Top Bar with onMenuClick to open sidebar
+            // Add onAddClick and onDeleteClick
             ModernTopBar(
                 title = "TanyaGemini",
-                onMenuClick = { sidebarState.open() }
+                onMenuClick = { sidebarState.open() },
+                onAddClick = {
+                    chatViewModel.onEvent(ChatUiEvent.CreateNewChat)
+                },
+                onDeleteClick = {
+                    chatViewModel.onEvent(ChatUiEvent.ClearCurrentChat)
+                }
             )
 
             // Chat Messages List

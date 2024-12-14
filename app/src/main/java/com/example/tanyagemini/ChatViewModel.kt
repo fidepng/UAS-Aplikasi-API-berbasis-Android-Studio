@@ -13,8 +13,10 @@ import kotlinx.coroutines.launch
 data class ChatState(
     val chatList: List<Chats> = mutableListOf(),
     val prompt: String = "",
-    val bitmap: Bitmap? = null
+    val bitmap: Bitmap? = null,
+    val currentChatId: String = "" // Placeholder for future database integration
 )
+
 class ChatViewModel : ViewModel() {
 
     private val _chatState = MutableStateFlow(ChatState())
@@ -39,6 +41,33 @@ class ChatViewModel : ViewModel() {
                     it.copy(prompt = event.newPrompt)
                 }
             }
+
+            is ChatUiEvent.CreateNewChat -> {
+                createNewChat()
+            }
+
+            is ChatUiEvent.ClearCurrentChat -> {
+                clearCurrentChat()
+            }
+        }
+    }
+
+    private fun createNewChat() {
+        // Reset the chat state to initial conditions
+        _chatState.update {
+            ChatState(
+                chatList = emptyList(),
+                prompt = "",
+                bitmap = null,
+                currentChatId = generateUniqueId() // Placeholder for future database integration
+            )
+        }
+    }
+
+    private fun clearCurrentChat() {
+        // Clear only the current chat's messages
+        _chatState.update {
+            it.copy(chatList = emptyList())
         }
     }
 
@@ -63,5 +92,10 @@ class ChatViewModel : ViewModel() {
             val chat = ChatData.getResponseWithImage(prompt, bitmap)
             updateChatList(chat)
         }
+    }
+
+    // Placeholder function for generating unique ID
+    private fun generateUniqueId(): String {
+        return System.currentTimeMillis().toString()
     }
 }

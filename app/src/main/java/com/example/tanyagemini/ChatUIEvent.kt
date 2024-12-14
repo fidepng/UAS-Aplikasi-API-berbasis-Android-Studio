@@ -8,4 +8,8 @@ sealed class ChatUiEvent {
         val prompt: String,
         val bitmap: Bitmap?
     ) : ChatUiEvent()
+
+    // events for new chat and clearing chat
+    object CreateNewChat : ChatUiEvent()
+    object ClearCurrentChat : ChatUiEvent()
 }
