@@ -1,6 +1,6 @@
 package com.example.tanyagemini.data
 
-import coil3.Bitmap
+import android.graphics.Bitmap
 
 data class Chats (
     val prompt: String,

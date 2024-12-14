@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,6 +47,13 @@ fun ModernChatInputSection(
 ) {
     val chatState by chatViewModel.chatState.collectAsState()
 
+    // Sync bitmap from MainActivity to ViewModel state
+    LaunchedEffect(bitmap) {
+        bitmap?.let {
+            chatViewModel.onEvent(ChatUiEvent.UpdatePrompt(chatState.prompt))
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -60,15 +68,18 @@ fun ModernChatInputSection(
                 .padding(horizontal = 24.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Image Picker
+            // Image Picker with Reset Capability
             ImagePickerButton(
                 bitmap = bitmap,
-                onImagePickerClick = onImagePickerClick
+                onImagePickerClick = onImagePickerClick,
+                onImageReset = {
+                    chatViewModel.onEvent(ChatUiEvent.ResetBitmap)
+                }
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Text Input
+            // Text Input (unchanged)
             TextField(
                 value = chatState.prompt,
                 onValueChange = {
@@ -111,28 +122,48 @@ fun ModernChatInputSection(
 @Composable
 fun ImagePickerButton(
     bitmap: android.graphics.Bitmap?,
-    onImagePickerClick: () -> Unit
+    onImagePickerClick: () -> Unit,
+    onImageReset: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .size(24.dp)
-            .clickable(onClick = onImagePickerClick)
     ) {
         bitmap?.let {
-            Image(
-                bitmap = it.asImageBitmap(),
-                contentDescription = "Selected Image",
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
+                    .clickable(onClick = onImageReset)
+            ) {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Selected Image",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+
+                // Optional: Add a small reset/close icon
+                Icon(
+                    painter = painterResource(id = R.drawable.close),  // Add a close icon to your resources
+                    contentDescription = "Reset Image",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(16.dp)
+                        .background(Color.Black.copy(alpha = 0.5f), shape = RoundedCornerShape(50))
+                )
+            }
         } ?: run {
             Icon(
                 painter = painterResource(id = R.drawable.paperclip),
                 contentDescription = "Attach Image",
                 tint = Color.Black,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onImagePickerClick)
             )
         }
     }

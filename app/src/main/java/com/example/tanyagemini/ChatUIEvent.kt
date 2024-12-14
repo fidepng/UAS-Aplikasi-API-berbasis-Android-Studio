@@ -1,6 +1,6 @@
 package com.example.tanyagemini
 
-import coil3.Bitmap
+import android.graphics.Bitmap
 
 sealed class ChatUiEvent {
     data class UpdatePrompt(val newPrompt: String) : ChatUiEvent()
@@ -12,4 +12,7 @@ sealed class ChatUiEvent {
     // events for new chat and clearing chat
     object CreateNewChat : ChatUiEvent()
     object ClearCurrentChat : ChatUiEvent()
+
+    // event to reset bitmap
+    object ResetBitmap : ChatUiEvent()
 }

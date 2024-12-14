@@ -57,6 +57,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private fun resetBitmap() {
+        uriState.update { "" }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

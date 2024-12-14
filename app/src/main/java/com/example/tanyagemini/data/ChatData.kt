@@ -1,6 +1,6 @@
 package com.example.tanyagemini.data
 
-import coil3.Bitmap
+import android.graphics.Bitmap
 import com.example.tanyagemini.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
@@ -8,64 +8,33 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object ChatData {
-    suspend fun getResponse(prompt: String): Chats {
-        val generativeModel = GenerativeModel(
-            modelName = "gemini-1.5-flash",
-            apiKey = BuildConfig.apiKey
-        )
 
-        try {
-            val response = withContext(Dispatchers.IO) {
-                generativeModel.generateContent(prompt)
-            }
-
-            return Chats(
-                prompt = response.text ?: "error",
-                bitmap = null,
-                isFromUser = false
-            )
-
-        } catch (e: Exception) {
-            return Chats(
-                prompt = e.message ?: "error",
-                bitmap = null,
-                isFromUser = false
-            )
+    private fun handleResponse(response: String?, exception: Exception? = null): Chats {
+        return if (exception == null) {
+            Chats(prompt = response ?: "error", bitmap = null, isFromUser = false)
+        } else {
+            Chats(prompt = exception.message ?: "error", bitmap = null, isFromUser = false)
         }
-
     }
 
-    suspend fun getResponseWithImage(prompt: String, bitmap: Bitmap): Chats{
-        val generativeModel = GenerativeModel(
-            modelName = "gemini-1.5-flash",
-            apiKey = BuildConfig.apiKey
-        )
-
-        try {
-
-            val inputContent = content {
-                image(bitmap)
-                text(prompt)
-            }
-
-            val response = withContext(Dispatchers.IO) {
-                generativeModel.generateContent(inputContent)
-            }
-
-            return Chats(
-                prompt = response.text ?: "error",
-                bitmap = null,
-                isFromUser = false
-            )
-
+    suspend fun getResponse(prompt: String): Chats {
+        val generativeModel = GenerativeModel(modelName = "gemini-1.5-flash", apiKey = BuildConfig.apiKey)
+        return try {
+            val response = withContext(Dispatchers.IO) { generativeModel.generateContent(prompt) }
+            handleResponse(response.text)
         } catch (e: Exception) {
-            return Chats(
-                prompt = e.message ?: "error",
-                bitmap = null,
-                isFromUser = false
-            )
+            handleResponse(null, e)
         }
+    }
 
+    suspend fun getResponseWithImage(prompt: String, bitmap: Bitmap): Chats {
+        val generativeModel = GenerativeModel(modelName = "gemini-1.5-flash", apiKey = BuildConfig.apiKey)
+        return try {
+            val inputContent = content { image(bitmap); text(prompt) }
+            val response = withContext(Dispatchers.IO) { generativeModel.generateContent(inputContent) }
+            handleResponse(response.text)
+        } catch (e: Exception) {
+            handleResponse(null, e)
+        }
     }
 }
-

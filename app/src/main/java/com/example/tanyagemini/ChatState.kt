@@ -1,6 +1,6 @@
 package com.example.tanyagemini
 
-import coil3.Bitmap
+import android.graphics.Bitmap
 import com.example.tanyagemini.data.Chats
 
 data class eChatState (
